@@ -1,6 +1,7 @@
-# uz.mirix.security
+# uz.mirix.security [![](https://jitpack.io/v/M1rix/uz.mirix.security.svg)](https://jitpack.io/#M1rix/uz.mirix.security)
 
-`uz.mirix.security` — лёгкая Spring-библиотека для скрытия отдельных полей в JSON-ответе на основе ролей пользователя (Spring Security Authorities).
+`uz.mirix.security`
+ — лёгкая Spring-библиотека для скрытия отдельных полей в JSON-ответе на основе ролей пользователя (Spring Security Authorities).
 
 Решение построено на:
 
