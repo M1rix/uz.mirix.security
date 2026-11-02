@@ -4,13 +4,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.2</version>
+        <relativePath/>
+    </parent>
+
     <groupId>uz.mirix</groupId>
     <artifactId>security</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <java.version>25</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <gpg.skip>true</gpg.skip>
     </properties>
@@ -22,24 +28,23 @@
         </repository>
     </distributionManagement>
 
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.5.1</version>
-    </parent>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-aop</artifactId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
