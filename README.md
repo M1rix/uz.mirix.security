@@ -5,10 +5,10 @@ Spring MVC-библиотека для скрытия полей JSON-ответ
 ## Требования
 
 - Java 17 LTS.
-- Spring Boot 4.1.2, Spring Framework 7 и Spring Security 7.
-- Jackson 3 (`tools.jackson.databind`).
+- Spring Boot 3.5.16, Spring Framework 6.2 и Spring Security 6.5.
+- Jackson 2 (`com.fasterxml.jackson.databind`).
 
-Для Spring выбрана актуальная стабильная OSS-линейка. Длительная коммерческая поддержка Spring Enterprise имеет отдельные условия; это не отдельная бесплатная LTS-версия. См. [версии Spring Boot](https://docs.spring.io/spring-boot/) и [план поддержки Java](https://www.oracle.com/java/technologies/java-se-support-roadmap.html).
+Проект рассчитан на Spring Boot 3.5.x. Версии Spring Framework, Spring Security и Jackson управляются родительским POM Spring Boot. См. [документацию Spring Boot 3.5](https://docs.spring.io/spring-boot/3.5/index.html).
 
 ## Подключение
 
@@ -27,7 +27,7 @@ public class FieldVisibilityConfiguration {
 
 Если приложение уже сканирует пакет `uz.mirix`, обработчик обнаружится автоматически. Используйте один из этих способов регистрации.
 
-Библиотека использует настроенный приложением Jackson `JsonMapper` и не меняет его конфигурацию.
+Библиотека использует настроенный приложением Jackson `ObjectMapper` и не меняет его конфигурацию.
 
 ## Фильтрация по ролям
 
@@ -111,7 +111,7 @@ record AccountDto(
 
 ## Миграция с Spring Boot 2
 
-Обновите приложение до Spring Boot 4 и Java 17, замените импорты Jackson Databind на `tools.jackson.databind`. Аннотации библиотеки сохранили свои пакеты. Старые классы `RoleBasedFieldHidingAspect` и `AudienceBasedFieldHidingAspect` заменены единым `FieldVisibilityResponseBodyAdvice`; обновите их явные импорты в конфигурации. AspectJ и `@EnableAspectJAutoProxy` для этой библиотеки больше не требуются.
+Обновите приложение до Spring Boot 3.5 и Java 17. Jackson Databind сохраняет пакет `com.fasterxml.jackson.databind`. Аннотации библиотеки сохранили свои пакеты. Старые классы `RoleBasedFieldHidingAspect` и `AudienceBasedFieldHidingAspect` заменены единым `FieldVisibilityResponseBodyAdvice`; обновите их явные импорты в конфигурации. AspectJ и `@EnableAspectJAutoProxy` для этой библиотеки больше не требуются.
 
 ## Сборка
 

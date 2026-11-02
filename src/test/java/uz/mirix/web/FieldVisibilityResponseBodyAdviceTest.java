@@ -2,15 +2,23 @@ package uz.mirix.web;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,9 +30,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
-import tools.jackson.databind.PropertyNamingStrategies;
-import tools.jackson.databind.cfg.DateTimeFeature;
-import tools.jackson.databind.json.JsonMapper;
 import uz.mirix.annotations.audience.AudienceFilter;
 import uz.mirix.annotations.audience.AudienceFilterController;
 import uz.mirix.annotations.audience.AudienceFilterObject;
@@ -37,6 +42,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -51,12 +57,22 @@ class FieldVisibilityResponseBodyAdviceTest {
     @BeforeEach
     void setUp() {
         SecurityContextHolder.clearContext();
-        mvc = mockMvc(JsonMapper.builder().build());
+        mvc = mockMvc(JsonMapper.builder().addModule(new JavaTimeModule()).build());
     }
 
     @AfterEach
     void clearSecurityContext() {
         SecurityContextHolder.clearContext();
+    }
+
+    @Test
+    void registersAdviceWithSpringBootDefaultObjectMapper() {
+        new ApplicationContextRunner()
+                .withConfiguration(AutoConfigurations.of(JacksonAutoConfiguration.class))
+                .withBean(FieldVisibilityResponseBodyAdvice.class)
+                .run(context -> assertThat(context)
+                        .hasSingleBean(ObjectMapper.class)
+                        .hasSingleBean(FieldVisibilityResponseBodyAdvice.class));
     }
 
     @Test
@@ -214,6 +230,7 @@ class FieldVisibilityResponseBodyAdviceTest {
     @Test
     void respectsApplicationNamingStrategyWhenRemovingFields() throws Exception {
         mvc = mockMvc(JsonMapper.builder()
+                .addModule(new JavaTimeModule())
                 .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
                 .build());
 
@@ -234,7 +251,8 @@ class FieldVisibilityResponseBodyAdviceTest {
     @Test
     void respectsApplicationDateSerializationConfiguration() throws Exception {
         mvc = mockMvc(JsonMapper.builder()
-                .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .addModule(new JavaTimeModule())
+                .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .build());
 
         mvc.perform(get("/roles/date"))
@@ -259,11 +277,11 @@ class FieldVisibilityResponseBodyAdviceTest {
                 .andExpect(jsonPath("$.internalComment").value("restricted"));
     }
 
-    private static MockMvc mockMvc(JsonMapper mapper) {
+    private static MockMvc mockMvc(ObjectMapper mapper) {
         return MockMvcBuilders.standaloneSetup(
                         new RoleController(), new AudienceController(), new CombinedController(), new PlainController())
                 .setControllerAdvice(new FieldVisibilityResponseBodyAdvice(mapper))
-                .setMessageConverters(new JacksonJsonHttpMessageConverter(mapper))
+                .setMessageConverters(new MappingJackson2HttpMessageConverter(mapper))
                 .build();
     }
 

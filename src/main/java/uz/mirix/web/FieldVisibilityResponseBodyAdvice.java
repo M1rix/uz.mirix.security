@@ -1,11 +1,14 @@
 package uz.mirix.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -16,9 +19,6 @@ import org.springframework.security.oauth2.core.ClaimAccessor;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
-import tools.jackson.databind.introspect.BeanPropertyDefinition;
-import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.databind.node.ObjectNode;
 import uz.mirix.annotations.audience.AudienceFilter;
 import uz.mirix.annotations.audience.AudienceFilterController;
 import uz.mirix.annotations.audience.AudienceFilterObject;
@@ -35,16 +35,16 @@ import java.util.stream.Collectors;
 @ControllerAdvice(annotations = {RoleVisibilityController.class, AudienceFilterController.class})
 public class FieldVisibilityResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
-    private final JsonMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
-    public FieldVisibilityResponseBodyAdvice(JsonMapper objectMapper) {
+    public FieldVisibilityResponseBodyAdvice(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
     @Override
     public boolean supports(MethodParameter returnType,
                             Class<? extends HttpMessageConverter<?>> converterType) {
-        return JacksonJsonHttpMessageConverter.class.isAssignableFrom(converterType);
+        return MappingJackson2HttpMessageConverter.class.isAssignableFrom(converterType);
     }
 
     @Override
@@ -109,11 +109,8 @@ public class FieldVisibilityResponseBodyAdvice implements ResponseBodyAdvice<Obj
                     + bodyType.getName());
         }
 
-        var config = objectMapper.serializationConfig();
-        var introspector = config.classIntrospectorInstance().forOperation(config);
         var javaType = objectMapper.constructType(bodyType);
-        var classAnnotations = introspector.introspectClassAnnotations(javaType);
-        var description = introspector.introspectForSerialization(javaType, classAnnotations);
+        var description = objectMapper.getSerializationConfig().introspect(javaType);
         for (BeanPropertyDefinition property : description.findProperties()) {
             var field = property.getField();
             if (field == null) {
