@@ -4,7 +4,7 @@ Spring MVC-библиотека для скрытия полей JSON-ответ
 
 ## Требования
 
-- Java 25 LTS.
+- Java 17 LTS.
 - Spring Boot 4.1.2, Spring Framework 7 и Spring Security 7.
 - Jackson 3 (`tools.jackson.databind`).
 
@@ -111,11 +111,11 @@ record AccountDto(
 
 ## Миграция с Spring Boot 2
 
-Обновите приложение до Spring Boot 4 и Java 25, замените импорты Jackson Databind на `tools.jackson.databind`. Аннотации библиотеки сохранили свои пакеты. Старые классы `RoleBasedFieldHidingAspect` и `AudienceBasedFieldHidingAspect` заменены единым `FieldVisibilityResponseBodyAdvice`; обновите их явные импорты в конфигурации. AspectJ и `@EnableAspectJAutoProxy` для этой библиотеки больше не требуются.
+Обновите приложение до Spring Boot 4 и Java 17, замените импорты Jackson Databind на `tools.jackson.databind`. Аннотации библиотеки сохранили свои пакеты. Старые классы `RoleBasedFieldHidingAspect` и `AudienceBasedFieldHidingAspect` заменены единым `FieldVisibilityResponseBodyAdvice`; обновите их явные импорты в конфигурации. AspectJ и `@EnableAspectJAutoProxy` для этой библиотеки больше не требуются.
 
 ## Сборка
 
-Установите JDK 25 и укажите его в `JAVA_HOME`. Maven Wrapper загрузит нужную версию Maven при первом запуске.
+Установите JDK 17 и укажите его в `JAVA_HOME`. Maven Wrapper загрузит нужную версию Maven при первом запуске.
 
 Windows:
 
